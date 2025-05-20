@@ -45,6 +45,7 @@ exo_rabbitMQ/
 
 - 📦 Node.js ≥ 16
 - 🐳 Docker ≥ 20
+- 🐳 Docker Compose >= 1.29
 - 🐇 RabbitMQ (via Docker ou installation locale)
 
 ---
@@ -64,14 +65,28 @@ cd exo_rabbitMQ
 npm install
 ```
 
-### 3. Lancer RabbitMQ avec Docker
+### 3. Using Docker
+
+1. Create a `.env` file with RabbitMQ credentials:
+   ```env
+   RABBITMQ_USER=admin
+   RABBITMQ_PASS=securepassword123
+   ```
+
+### 4. Lancer RabbitMQ avec Docker
 
 ```bash
 docker-compose up -d
 ```
 
-Ensuite, accéder à l'interface de gestion de RabbitMQ à l'adresse suivante :  
-🔗 [http://localhost:15672](http://localhost:15672)  
-**Identifiants de connexion :**  
-- **Login** : `user`  
+### 5. Vérifier le lancement de rabbitMQ
+
+- AMQP: `amqp://localhost:5672`
+- Interface de gestion de RabbitMQ (optionnel):  
+🔗 [http://localhost:15672](http://localhost:15672) (login with credentials from `.env`)
+
+
+**Identifiants de connexion :**
+
+- **Login** : `user`
 - **Mot de passe** : `password`
