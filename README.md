@@ -1,18 +1,18 @@
-# 🧮 Distributed Calculator with RabbitMQ
+# 🧮 Calculateur Distribué avec RabbitMQ
 
-A RabbitMQ-based distributed computing system for the **NGI Nuclear Physics Institute**.  
-The system distributes mathematical operations (`add`, `sub`, `mul`, `div`) across multiple workers.
-
----
-
-## 🎯 Objective
-
-Simulate a distributed system for mathematical computation using **RabbitMQ** as a message broker.  
-A producer sends random operations, distributed among workers via RabbitMQ, and results are collected by a result consumer.
+Un système de calcul distribué basé sur **RabbitMQ**, conçu pour l’**Institut de Physique Nucléaire NGI**.  
+Le système répartit des opérations mathématiques (`add`, `sub`, `mul`, `div`) entre plusieurs workers.
 
 ---
 
-## 🧰 Technologies Used
+## 🎯 Objectif
+
+Simuler un système distribué de calcul mathématique utilisant **RabbitMQ** comme message broker.  
+Un producteur envoie des opérations aléatoires, réparties entre des workers via RabbitMQ, et les résultats sont collectés par un consommateur dédié.
+
+---
+
+## 🧰 Technologies utilisées
 
 - 🟢 Node.js
 - 🐇 RabbitMQ (via Docker)
@@ -21,7 +21,8 @@ A producer sends random operations, distributed among workers via RabbitMQ, and 
 
 ---
 
-## 📁 Project Structure
+## 📁 Structure du projet
+
 ```
 exo_rabbitMQ/
 ├── docker-compose.yml        # Définition du service RabbitMQ
@@ -40,15 +41,15 @@ exo_rabbitMQ/
 
 ---
 
-## ⚙️ Prerequisites
+## ⚙️ Prérequis
 
-- 📦 Node.js >= 16
-- 🐳 Docker >= 20
-- 🐇 RabbitMQ (via Docker or local installation)
+- 📦 Node.js ≥ 16
+- 🐳 Docker ≥ 20
+- 🐇 RabbitMQ (via Docker ou installation locale)
 
 ---
 
-## 🚀 Setup & Run
+## 🚀 Installation & Exécution
 
 ### 1. Cloner le dépôt
 
@@ -74,7 +75,3 @@ Ensuite, accéder à l'interface de gestion de RabbitMQ à l'adresse suivante :
 **Identifiants de connexion :**  
 - **Login** : `user`  
 - **Mot de passe** : `password`
-
-
-
-
