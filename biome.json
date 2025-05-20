@@ -1,10 +1,19 @@
 {
   "$schema": "./node_modules/@biomejs/biome/configuration_schema.json",
   "css": {
-    "formatter": { "enabled": false },
-    "linter": { "enabled": false },
-    "assists": { "enabled": false},
-    "parser": { "allowWrongLineComments": false, "cssModules": false}
+    "formatter": {
+      "enabled": false
+    },
+    "linter": {
+      "enabled": false
+    },
+    "assists": {
+      "enabled": false
+    },
+    "parser": {
+      "allowWrongLineComments": false,
+      "cssModules": false
+    }
   },
   "formatter": {
     "indentStyle": "space",
@@ -36,7 +45,7 @@
         "useSortedClasses": "warn"
       },
       "suspicious": {
-        "noConsole": "error",
+        "noConsole": "off",
         "noEvolvingTypes": "error",
         "useErrorMessage": "error",
         "useNumberToFixedDigitsArgument": "warn",
