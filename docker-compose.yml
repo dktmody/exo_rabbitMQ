@@ -1,10 +1,29 @@
-version: '3'
 services:
   rabbitmq:
-    image: rabbitmq:3-management
+    image: rabbitmq:3-management  # Retain for debugging, but consider rabbitmq:3
     ports:
-      - "5672:5672"
-      - "15672:15672"
+      - "5672:5672"  # AMQP port
+      - "15672:15672"  # Management UI (optional)
     environment:
-      RABBITMQ_DEFAULT_USER: user
-      RABBITMQ_DEFAULT_PASS: password
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER:-user}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASS:-password}
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq  # Persist data
+    healthcheck:
+      test: ["CMD", "rabbitmqctl", "status"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          memory: 512m
+    networks:
+      - calc-network
+
+volumes:
+  rabbitmq_data:
+
+networks:
+  calc-network:
+    driver: bridge
