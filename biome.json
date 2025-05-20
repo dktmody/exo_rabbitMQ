@@ -1,0 +1,51 @@
+{
+  "$schema": "./node_modules/@biomejs/biome/configuration_schema.json",
+  "css": {
+    "formatter": { "enabled": false },
+    "linter": { "enabled": false },
+    "assists": { "enabled": false},
+    "parser": { "allowWrongLineComments": false, "cssModules": false}
+  },
+  "formatter": {
+    "indentStyle": "space",
+    "lineWidth": 160
+  },
+  "linter": {
+    "ignore": [
+      "/apps/web/src/styles/**/*.css"
+    ],
+    "enabled": true,
+    "rules": {
+      "recommended": true,
+      "a11y": {
+        "noSvgWithoutTitle": "off"
+      },
+      "style": {
+        "noShoutyConstants": "warn",
+        "useBlockStatements": "info",
+        "useCollapsedElseIf": "warn",
+        "useForOf": "warn",
+        "useFragmentSyntax": "warn",
+        "useShorthandAssign": "info",
+        "useSingleCaseStatement": "warn",
+        "useThrowNewError": "warn",
+        "useThrowOnlyError": "warn",
+        "useWhile": "warn"
+      },
+      "nursery": {
+        "useSortedClasses": "warn"
+      },
+      "suspicious": {
+        "noConsole": "error",
+        "noEvolvingTypes": "error",
+        "useErrorMessage": "error",
+        "useNumberToFixedDigitsArgument": "warn",
+        "noEmptyBlock": "error"
+      },
+      "correctness": {
+        "noUnknownFunction": "off",
+        "noUnusedImports": "warn"
+      }
+    }
+  }
+}

@@ -1,10 +1,14 @@
 {
-  "name": "exo_rabbitmq",
+  "name": "distributed-calculator",
   "version": "1.0.0",
   "description": "\"# exo_rabbitMQ\"",
   "main": "index.js",
-  "scripts": {
-    "test": "jest"
+   "scripts": {
+    "start:producer": "node producer.js",
+    "start:worker": "node workers/worker.js",
+    "start:consumer": "node result_consumer.js",
+    "test": "jest",
+    "lint": "biome check --write --unsafe --no-errors-on-unmatched ./src"
   },
   "repository": {
     "type": "git",
@@ -19,9 +23,11 @@
   },
   "homepage": "https://github.com/dktmody/exo_rabbitMQ#readme",
   "dependencies": {
-    "amqplib": "^0.10.8"
+    "amqplib": "^0.10.8",
+    "dotenv": "^16.5.0"
   },
   "devDependencies": {
+    "@biomejs/biome": "^1.9.4",
     "jest": "^29.7.0"
   }
 }
