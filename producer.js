@@ -1,18 +1,20 @@
 // producer.js
-const amqp = require('amqplib');
-const { randomInt } = require('crypto');
+const amqp = require("amqplib");
+const { randomInt } = require("crypto");
 
-const QUEUES = ['rpc_add', 'rpc_sub', 'rpc_mul', 'rpc_div'];
-const OPERATIONS = ['add', 'sub', 'mul', 'div', 'all'];
+const EXCHANGE = "operations";
+const OPERATIONS = ["add", "sub", "mul", "div", "all"];
 
 async function connectAndProduce() {
   try {
-    const connection = await amqp.connect('amqp://user:password@localhost');
+    const connection = await amqp.connect("amqp://user:password@localhost");
     const channel = await connection.createChannel();
 
-    for (const queue of QUEUES) {
-      await channel.assertQueue(queue, { durable: true });
-    }
+    // // for (const queue of QUEUES) {
+    // //   await channel.assertQueue(queue, { durable: true });
+    // }
+
+    await channel.assertExchange(EXCHANGE, "direct", { durable: true });
 
     setInterval(() => {
       const n1 = randomInt(1, 100);
@@ -22,28 +24,31 @@ async function connectAndProduce() {
       const message = {
         n1,
         n2,
-        op
+        op,
       };
 
       const msgBuffer = Buffer.from(JSON.stringify(message));
 
-      if (op === 'all') {
+      //   if (op === 'all') {
 
-        // Envoie du message à toutes les queues
-        for (const queue of QUEUES) {
-          channel.sendToQueue(queue, msgBuffer, { persistent: true });
-        }
-        console.log(`Envoyé [ALL] : ${JSON.stringify(message)}`);
-      } else {
-        const queueName = `rpc_${op}`;
-        channel.sendToQueue(queueName, msgBuffer, { persistent: true });
+      //     // Envoie du message à toutes les queues
+      //     for (const queue of QUEUES) {
+      //       channel.sendToQueue(queue, msgBuffer, { persistent: true });
+      //     }
+      //     console.log(`Envoyé [ALL] : ${JSON.stringify(message)}`);
+      //   } else {
+      //     const queueName = `rpc_${op}`;
+      //     channel.sendToQueue(queueName, msgBuffer, { persistent: true });
+      //     console.log(`Envoyé [${op}] : ${JSON.stringify(message)}`);
+      //   }
+
+      // }, 5000);
+
+      channel.publish(EXCHANGE, op, msgBuffer, { persistent: true });
         console.log(`Envoyé [${op}] : ${JSON.stringify(message)}`);
-      }
-
     }, 5000);
-
   } catch (error) {
-    console.error('Erreur de connexion à RabbitMQ :', error);
+    console.error("Erreur de connexion à RabbitMQ :", error);
   }
 }
 
