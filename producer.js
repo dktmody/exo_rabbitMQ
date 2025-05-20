@@ -1,5 +1,6 @@
 // producer.js
 const amqp = require("amqplib");
+// biome-ignore lint/style/useNodejsImportProtocol: <explanation>
 const { randomInt } = require("crypto");
 
 const EXCHANGE = "operations";
@@ -29,23 +30,8 @@ async function connectAndProduce() {
 
       const msgBuffer = Buffer.from(JSON.stringify(message));
 
-      //   if (op === 'all') {
-
-      //     // Envoie du message à toutes les queues
-      //     for (const queue of QUEUES) {
-      //       channel.sendToQueue(queue, msgBuffer, { persistent: true });
-      //     }
-      //     console.log(`Envoyé [ALL] : ${JSON.stringify(message)}`);
-      //   } else {
-      //     const queueName = `rpc_${op}`;
-      //     channel.sendToQueue(queueName, msgBuffer, { persistent: true });
-      //     console.log(`Envoyé [${op}] : ${JSON.stringify(message)}`);
-      //   }
-
-      // }, 5000);
-
       channel.publish(EXCHANGE, op, msgBuffer, { persistent: true });
-        console.log(`Envoyé [${op}] : ${JSON.stringify(message)}`);
+      console.log(`Envoyé [${op}] : ${JSON.stringify(message)}`);
     }, 5000);
   } catch (error) {
     console.error("Erreur de connexion à RabbitMQ :", error);

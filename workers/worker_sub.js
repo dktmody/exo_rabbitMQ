@@ -1,68 +1,55 @@
-// workers/worker_sub.js
-const amqp = require('amqplib');
+// workers/worker_add.js
+const amqp = require("amqplib");
+
+const Exchange = "operations";
+const ROUTING_KEY = "sub";
+const RESULT_QUEUE = "results";
 
 function sleep(ms) {
-  return new Promise(resolve => setTimeout(resolve, ms));
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 async function startWorker() {
   try {
-    const connection = await amqp.connect('amqp://user:password@localhost');
+    const connection = await amqp.connect("amqp://user:password@localhost");
     const channel = await connection.createChannel();
 
-    const inputQueue = 'rpc_sub';
-    const resultQueue = 'results';
+    await channel.assertExchange(Exchange, "direct", { durable: true });
+    const { queue } = await channel.assertQueue("", {
+      exclusive: true,
+      durable: true,
+    });
 
-    await channel.assertQueue(inputQueue, { durable: true });
-    await channel.assertQueue(resultQueue, { durable: true });
+    await channel.bindQueue(queue, Exchange, ROUTING_KEY);
+    console.log(`🔧 [worker_sub] En attente de messages dans "${queue}"...`);
 
-    console.log(`🛠️  [worker_sub] En attente de messages dans "${inputQueue}"...`);
-
-    channel.consume(inputQueue, async (msg) => {
+    channel.consume(queue, async (msg) => {
       if (msg !== null) {
         const content = msg.content.toString();
-        let data;
-
-        try {
-          data = JSON.parse(content);
-        } catch (err) {
-          console.error('❌ Erreur parsing JSON :', err);
-          channel.ack(msg);
-          return;
-        }
-
-        const { n1, n2, op } = data;
-
-        if (op !== 'sub' && op !== 'all') {
-          channel.ack(msg); 
-          return;
-        }
-
+        const { n1, n2, op } = JSON.parse(content);
         console.log(`🔧 [worker_sub] Reçu : ${n1} - ${n2} (op: ${op})`);
-
-        const waitTime = Math.floor(Math.random() * 10000) + 5000;
-        await sleep(waitTime);
 
         const resultMsg = {
           n1,
           n2,
-          op: 'sub',
-          result: n1 - n2
+          op: "sub",
+          result: n1 - n2,
         };
 
-        channel.sendToQueue(resultQueue, Buffer.from(JSON.stringify(resultMsg)), {
-          persistent: true
-        });
-
-        console.log(`✅ [worker_sub] Résultat envoyé après ${waitTime / 1000}s : ${resultMsg.result}`);
+        await channel.assertQueue(RESULT_QUEUE, { durable: true });
+        channel.sendToQueue(
+          RESULT_QUEUE,
+          Buffer.from(JSON.stringify(resultMsg)),
+          {
+            persistent: true,
+          }
+        );
+        console.log(`✅ [worker_sub] Résultat envoyé : ${resultMsg.result}`);
         channel.ack(msg);
       }
-    }, {
-      noAck: false
     });
-
   } catch (error) {
-    console.error('❌ Erreur worker_sub :', error);
+    console.error("❌ Erreur worker_sub :", error);
   }
 }
 
