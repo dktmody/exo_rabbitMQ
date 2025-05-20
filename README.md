@@ -83,10 +83,15 @@ docker-compose up -d
 
 - AMQP: `amqp://localhost:5672`
 - Interface de gestion de RabbitMQ (optionnel):  
-🔗 [http://localhost:15672](http://localhost:15672) (login with credentials from `.env`)
-
+  🔗 [http://localhost:15672](http://localhost:15672) (login with credentials from `.env`)
 
 **Identifiants de connexion :**
 
 - **Login** : `user`
 - **Mot de passe** : `password`
+
+### 5. Fonctionnement via le terminal :
+
+- Si on lance la commande node producer.js (sans arguments) alors le mode aléatoire est lancé et des opérations et nombres (n1 et n2) sont choisis aléatoirement.
+- Si on souhaite communiquer les arguments, on utilise la commande "node producer.js n1 n2 operation" soit par exemple "5 2 add" (pour 5+2) ou encore "9 5 mul" (pour 9\*5).
+- l'opération "all" peut également désormais être choisie consistant à lancer toutes les opérations pour les nombres n1 et n2 choisis en tapant la commande "node producer.js n1 n2 all".

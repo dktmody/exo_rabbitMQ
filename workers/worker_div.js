@@ -2,7 +2,7 @@
 const amqp = require("amqplib");
 
 const Exchange = "operations";
-const ROUTING_KEY = "div";
+const ROUTING_KEYS = ["div", "all"];
 const RESULT_QUEUE = "results";
 
 function sleep(ms) {
@@ -20,14 +20,22 @@ async function startWorker() {
       durable: true,
     });
 
-    await channel.bindQueue(queue, Exchange, ROUTING_KEY);
-    console.log(`🔧 [worker_div] En attente de messages dans "${queue}"...`);
+    // biome-ignore lint/complexity/noForEach: <explanation>
+    ROUTING_KEYS.forEach((key) => {
+      channel.bindQueue(queue, Exchange, key);
+    });
+
+    console.log(
+      `🔧 [worker_div] En attente de messages pour "${ROUTING_KEYS.join(
+        ", "
+      )}"...`
+    );
 
     channel.consume(queue, async (msg) => {
       if (msg !== null) {
         const content = msg.content.toString();
         const { n1, n2, op } = JSON.parse(content);
-        console.log(`🔧 [worker_add] Reçu : ${n1} / ${n2} (op: ${op})`);
+        console.log(`🔧 [worker_div] Reçu : ${n1} / ${n2} (op: ${op})`);
 
         // Vérifie la division par zéro
         let resultMsg;

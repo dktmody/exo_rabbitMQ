@@ -2,7 +2,7 @@
 const amqp = require("amqplib");
 
 const Exchange = "operations";
-const ROUTING_KEY = "sub";
+const ROUTING_KEYS = ["sub", "all"];
 const RESULT_QUEUE = "results";
 
 function sleep(ms) {
@@ -20,7 +20,10 @@ async function startWorker() {
       durable: true,
     });
 
-    await channel.bindQueue(queue, Exchange, ROUTING_KEY);
+    // biome-ignore lint/complexity/noForEach: <explanation>
+    ROUTING_KEYS.forEach((key) => {
+      channel.bindQueue(queue, Exchange, key);
+    });
     console.log(`🔧 [worker_sub] En attente de messages dans "${queue}"...`);
 
     channel.consume(queue, async (msg) => {
