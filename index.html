@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0" />
+    <title>Calculatrice Anime</title>
+    <link
+      rel="stylesheet"
+      href="style.css" />
+  </head>
+  <body>
+    <div class="container">
+      <h1>Calculatrice DreamTeam 🌌</h1>
+      <form id="calcForm">
+        <label for="n1">Nombre 1 :</label>
+        <input
+          type="number"
+          id="n1"
+          name="n1"
+          placeholder="Entrez le premier nombre"
+          required />
+
+        <label for="n2">Nombre 2 :</label>
+        <input
+          type="number"
+          id="n2"
+          name="n2"
+          placeholder="Entrez le second nombre"
+          required />
+
+        <label for="op">Opération :</label>
+        <select
+          id="op"
+          name="op"
+          required>
+          <option value="add">Addition (+)</option>
+          <option value="sub">Soustraction (-)</option>
+          <option value="mul">Multiplication (*)</option>
+          <option value="div">Division (/)</option>
+          <option value="all">Toutes les opérations</option>
+        </select>
+
+        <button type="submit">Envoyer</button>
+      </form>
+      <button id="toggleTheme">Activer le mode sombre</button>
+      <div class="footer">Farid, Mody, Verdiane & Georgi Corp 🌌</div>
+    </div>
+
+    <script>
+      // Gestionnaire d'événement pour le formulaire
+      document
+        .getElementById("calcForm")
+        .addEventListener("submit", async (e) => {
+          e.preventDefault(); // Empêche le rechargement de la page
+
+          // Récupère les valeurs du formulaire
+          const n1 = document.getElementById("n1").value;
+          const n2 = document.getElementById("n2").value;
+          const op = document.getElementById("op").value;
+
+          // Envoie les données au backend
+          try {
+            const response = await fetch("http://localhost:3000/api/produce", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({ n1, n2, op }),
+            });
+
+            if (response.ok) {
+              const result = await response.json();
+              alert(`✅ Message envoyé : ${JSON.stringify(result)}`);
+            } else {
+              alert("❌ Une erreur est survenue lors de l'envoi des données.");
+            }
+          } catch (error) {
+            console.error("Erreur réseau :", error);
+            alert("❌ Impossible de se connecter au serveur.");
+          }
+        });
+
+      // Gestion des thèmes (clair, sombre, Naruto)
+      const toggleThemeButton = document.getElementById("toggleTheme");
+      let currentTheme = "light"; // Thème par défaut
+
+      toggleThemeButton.addEventListener("click", () => {
+        // Rotation des thèmes : light -> dark -> naruto -> light
+        if (currentTheme === "light") {
+          document.body.classList.add("dark-mode");
+          document.body.classList.remove("naruto-mode");
+          toggleThemeButton.textContent = "Activer le thème Naruto";
+          currentTheme = "dark";
+        } else if (currentTheme === "dark") {
+          document.body.classList.remove("dark-mode");
+          document.body.classList.add("naruto-mode");
+          toggleThemeButton.textContent = "Activer le thème clair";
+          currentTheme = "naruto";
+        } else {
+          document.body.classList.remove("naruto-mode");
+          document.body.classList.remove("dark-mode");
+          toggleThemeButton.textContent = "Activer le thème sombre";
+          currentTheme = "light";
+        }
+      });
+    </script>
+  </body>
+</html>

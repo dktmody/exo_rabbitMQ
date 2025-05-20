@@ -21,8 +21,8 @@ async function startWorker() {
     });
 
     // biome-ignore lint/complexity/noForEach: <explanation>
-    ROUTING_KEY.forEach((key) => {
-      channel.bindExchange(queue, Exchange, key);
+    ROUTING_KEYS.forEach((key) => {
+      channel.bindQueue(queue, Exchange, key);
     });
     console.log(`🔧 [worker_add] En attente de messages dans "${queue}"...`);
 

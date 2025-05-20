@@ -1,0 +1,142 @@
+body.naruto-mode {
+  background: linear-gradient(to bottom, #ff9500, #ff5e3a);
+  color: #000;
+}
+
+body.naruto-mode .container {
+  background-color: #222;
+  color: #fff;
+  border: 3px solid #ff9500;
+}
+
+body.naruto-mode h1 {
+  color: #ff9500;
+  text-shadow: 1px 1px 2px #000;
+}
+
+body.naruto-mode input,
+body.naruto-mode select {
+  background-color: #333;
+  color: #fff;
+  border: 1px solid #ff9500;
+}
+
+body.naruto-mode button {
+  background-color: #ff9500;
+  color: #000;
+  border: 2px solid #000;
+  font-weight: bold;
+}
+
+body.naruto-mode button:hover {
+  background-color: #ff5e3a;
+  transform: scale(1.05);
+}
+
+body.naruto-mode .footer {
+  color: #ff9500;
+}
+
+/* Ajouter après les animations existantes */
+@keyframes narutoBg {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+body.naruto-mode {
+  background-size: 200% 200%;
+  animation: narutoBg 10s ease infinite;
+}
+
+body {
+  font-family: "Arial", sans-serif;
+  background-color: #f3eac2;
+  color: #2c2c2c;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+.container {
+  background-color: #fff;
+  border-radius: 15px;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+  padding: 30px;
+  text-align: center;
+  width: 500px;
+  max-width: 90%;
+  transition: background-color 0.3s, color 0.3s;
+  animation: fadeIn 1s ease-in-out;
+}
+
+h1 {
+  color: #6b4226;
+  font-size: 32px;
+  margin-bottom: 30px;
+}
+
+label {
+  font-weight: bold;
+  display: block;
+  margin: 15px 0 8px;
+  font-size: 18px;
+}
+
+input,
+select,
+button {
+  width: 100%;
+  padding: 15px;
+  margin-bottom: 20px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 18px;
+}
+
+button {
+  background-color: #6b4226;
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+button:hover {
+  background-color: #5a3721;
+}
+
+.footer {
+  margin-top: 20px;
+  font-size: 14px;
+  color: #555;
+}
+
+/* Mode sombre */
+body.dark-mode {
+  background-color: #2c2c2c;
+  color: #f3eac2;
+}
+
+body.dark-mode .container {
+  background-color: #3c3c3c;
+  color: #f3eac2;
+}
+
+body.dark-mode button {
+  background-color: #f3eac2;
+  color: #2c2c2c;
+}
+
+body.dark-mode button:hover {
+  background-color: #e0d7b5;
+}

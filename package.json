@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "\"# exo_rabbitMQ\"",
   "main": "index.js",
-   "scripts": {
+  "scripts": {
     "start:producer": "node producer.js",
     "start:worker": "node workers/worker.js",
     "start:consumer": "node result_consumer.js",
@@ -24,7 +24,9 @@
   "homepage": "https://github.com/dktmody/exo_rabbitMQ#readme",
   "dependencies": {
     "amqplib": "^0.10.8",
-    "dotenv": "^16.5.0"
+    "cors": "^2.8.5",
+    "dotenv": "^16.5.0",
+    "express": "^5.1.0"
   },
   "devDependencies": {
     "@biomejs/biome": "^1.9.4",
