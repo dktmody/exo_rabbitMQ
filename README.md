@@ -1,4 +1,3 @@
-
 # 🧮 Calculateur Distribué avec RabbitMQ
 
 Un système de calcul distribué basé sur **RabbitMQ**, conçu pour l’**Institut de Physique Nucléaire NGI**.  
@@ -101,11 +100,15 @@ Dans un terminal :
 ```bash
 node workers/index_worker.js
 ```
+
 Puis :
+
 ```bash
 node result_consumer.js
 ```
+
 Et enfin:
+
 ```bash
 node server.js
 ```
@@ -129,7 +132,8 @@ node producer.js 5 2 add
 ```bash
 node producer.js 5 2 all
 ```
-- Sur le **navigateur**  les opérations (add, sub, mul, div, all) peuvent également s'effectuer :
+
+- Sur le **navigateur** les opérations (add, sub, mul, div, all) peuvent également s'effectuer :
 
 Pour plus d'infos voir la partie Notes complémentaires
 
@@ -148,7 +152,30 @@ Pour plus d'infos voir la partie Notes complémentaires
 - Vous pouvez observer la file et les échanges dans l’interface RabbitMQ (http://localhost:15672).
 
 - Pour le test sur le navigateur, ouvrir le fichier index.html en local avec live server  
-Clic droit sur fichier index.html => open with live server dans VS code, ce qui ouvrira la page (http://127.0.0.1:5500/index.html)
+  Clic droit sur fichier index.html => open with live server dans VS code, ce qui ouvrira la page (http://127.0.0.1:5500/index.html)
+
 ---
 
-## 🧑‍🔬 Projet réalisé dans le cadre d’un TP pour le module RabbitMQ
+## 🧑‍🔬 Projet réalisé par Farid D, Verdiane K, Georgy G, Mody D dans le cadre d’un TP pour la matière RabbitMQ
+
+## ✅ Fonctionnalités mises en place
+
+L’ensemble des fonctionnalités demandées dans les différentes phases du projet a été implémenté :
+
+### 🔧 Amélioration du projet 1
+
+- Mise en place de 4 catégories de workers spécialisés (`add`, `sub`, `mul`, `div`), chacun traitant uniquement les opérations correspondant à sa spécialité.
+- Chaque worker est paramétré au démarrage pour spécifier l’opération qu’il gère.
+- Le client (producer.js) est amélioré pour envoyer automatiquement des requêtes de type `add`, `sub`, `mul`, ou `div` de façon aléatoire, à un rythme plus soutenu que toutes les 5 secondes.
+
+### 🧩 Amélioration du projet 2
+
+- Ajout du type d’opération `all` : le producteur envoie une requête qui est diffusée simultanément à tous les workers (`add`, `sub`, `mul`, `div`).
+- Le client est mis à jour pour inclure également l’envoi aléatoire de requêtes de type `all`.
+
+### 🚀 Finalisation du projet (améliorations libres)
+
+- Le client permet désormais d’envoyer manuellement une opération de son choix via la ligne de commande (ex : `node producer.js 5 2 mul`).
+- Le client est capable d’afficher les résultats des opérations qu’il a lui-même soumises.
+- Une interface graphique
+- une interface d’administration est ajoutée (admin.html) qu'il faudra lancer avec live server comme pour l'index.html mais il faudra au préalable lancer le server d'admin ("node admin-server.js" juste après avoir lancé le server de base "node server.js")
