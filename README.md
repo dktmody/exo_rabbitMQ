@@ -129,7 +129,7 @@ node producer.js 5 2 add
 ```bash
 node producer.js 5 2 all
 ```
-- Les opérations (add, sub, mul, div, all) peuvent également s'effectuer sur le navigateur  :
+- Sur le **navigateur**  les opérations (add, sub, mul, div, all) peuvent également s'effectuer :
 
 Pour plus d'infos voir la partie Notes complémentaires
 
@@ -147,7 +147,8 @@ Pour plus d'infos voir la partie Notes complémentaires
 
 - Vous pouvez observer la file et les échanges dans l’interface RabbitMQ (http://localhost:15672).
 
-- Pour le test sur le navigateur, ouvrir fichier index.html en local avec live server par exemple (http://127.0.0.1:5500/index.html)
+- Pour le test sur le navigateur, ouvrir le fichier index.html en local avec live server  
+Clic droit sur fichier index.html => open with live server dans VS code, ce qui ouvrira la page (http://127.0.0.1:5500/index.html)
 ---
 
 ## 🧑‍🔬 Projet réalisé dans le cadre d’un TP pour la matière RabbitMQ
