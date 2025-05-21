@@ -1,27 +1,32 @@
 // producer.js
-const amqp = require("amqplib");
-// biome-ignore lint/style/useNodejsImportProtocol: <explanation>
-const { randomInt } = require("crypto");
+import dotenv from "dotenv";
+import amqp from "amqplib";
+import { v4 as uuidv4 } from "uuid";
+import { getRoutingKey, publishMessage } from "./utils/index.js";
+import { EXCHANGE, OPERATIONS, INTERVAL } from "./constants/index.js";
 
-const EXCHANGE = "operations";
-const OPERATIONS = ["add", "sub", "mul", "div", "all"];
+dotenv.config();
 
-async function connectAndProduce() {
+const RABBITMQ_URL = process.env.RABBITMQ_URL;
+
+if (!RABBITMQ_URL) {
+  console.error(
+    "❌ Veuillez définir la variable d'environnement RABBITMQ_URL avec l'URL de RabbitMQ."
+  );
+  process.exit(1);
+}
+
+async function startProducer() {
   try {
-    const connection = await amqp.connect("amqp://user:password@localhost");
+    let routingKey;
+    const connection = await amqp.connect(process.env.RABBITMQ_URL);
     const channel = await connection.createChannel();
-    await channel.assertExchange(EXCHANGE, "direct", { durable: true });
 
     const args = process.argv.slice(2);
+    await channel.assertExchange(EXCHANGE, "direct", { durable: true });
 
     if (args.length === 3) {
       const [n1, n2, op] = args;
-      const message = {
-        n1: Number.parseInt(n1),
-        n2: Number.parseInt(n2),
-        op,
-      };
-
       if (!OPERATIONS.includes(op)) {
         console.error(
           `❌ Opération invalide : "${op}". Opérations valides : ${OPERATIONS.join(
@@ -31,10 +36,15 @@ async function connectAndProduce() {
         process.exit(1);
       }
 
-      const msgBuffer = Buffer.from(JSON.stringify(message));
-
-      channel.publish(EXCHANGE, op, msgBuffer, { persistent: true });
-      console.log(`✅ Envoyé [${op}] : ${JSON.stringify(message)}`);
+      const msg = {
+        n1: Number.parseInt(n1),
+        n2: Number.parseInt(n2),
+        op,
+        id: uuidv4(),
+      };
+      routingKey = getRoutingKey(op);
+      publishMessage(channel, msg, routingKey);
+      console.log(`✅ Envoyé: ${JSON.stringify(msg)} ==> ${routingKey}`);
 
       // Ferme la connexion après l'envoi du message
       await channel.close();
@@ -45,25 +55,24 @@ async function connectAndProduce() {
       console.log("🔄 Aucun argument fourni. Passage en mode aléatoire...");
 
       setInterval(() => {
-        const n1 = randomInt(1, 100);
-        const n2 = randomInt(1, 100);
-        const op = OPERATIONS[randomInt(0, OPERATIONS.length)];
+        try {
+          const op = OPERATIONS[Math.floor(Math.random() * OPERATIONS.length)];
+          const n1 = Math.floor(Math.random() * 100);
+          const n2 = Math.floor(Math.random() * 100) || 1; // Avoid division by zero
+          const msg = { n1, n2, op, id: uuidv4() };
+          routingKey = getRoutingKey(op);
 
-        const message = {
-          n1,
-          n2,
-          op,
-        };
-
-        const msgBuffer = Buffer.from(JSON.stringify(message));
-
-        channel.publish(EXCHANGE, op, msgBuffer, { persistent: true });
-        console.log(`Envoyé [${op}] : ${JSON.stringify(message)}`);
-      }, 5000);
+          publishMessage(channel, msg, routingKey);
+          console.log(`✅ Envoyé: ${JSON.stringify(msg)} ==> ${routingKey}`);
+        } catch (err) {
+          console.error("❌ Erreur lors de l'envoi du message :", err);
+        }
+      }, INTERVAL);
     }
   } catch (error) {
     console.error("Erreur de connexion à RabbitMQ :", error);
+    setTimeout(startProducer, 5000); // Réessayer après 5 secondes
   }
 }
 
-connectAndProduce();
+startProducer();

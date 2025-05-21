@@ -2,7 +2,7 @@ const express = require("express");
 const amqp = require("amqplib");
 
 const app = express();
-const PORT = 3000;
+const PORT = 3001;
 const EXCHANGE = "operations";
 
 app.use(express.json());
