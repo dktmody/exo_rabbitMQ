@@ -240,3 +240,46 @@ body.naruto-mode .result-item {
 body.naruto-mode .result-value {
   color: #ff9500;
 }
+
+/* notif */
+.notification {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  padding: 15px 20px;
+  background-color: #4caf50;
+  color: white;
+  border-radius: 4px;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
+  opacity: 0;
+  transform: translateY(-20px);
+  transition: all 0.3s ease;
+  z-index: 1000;
+}
+
+.notification.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.notification.error {
+  background-color: #f44336;
+}
+
+.notification.warning {
+  background-color: #ff9800;
+}
+
+body.dark-mode .notification {
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.4);
+}
+
+body.naruto-mode .notification {
+  background-color: #ff9500;
+  color: #000;
+  border: 2px solid #000;
+}
+
+body.naruto-mode .notification.error {
+  background-color: #ff5e3a;
+}

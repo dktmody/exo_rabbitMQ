@@ -60,6 +60,26 @@
     </div>
 
     <script>
+      function showNotification(message, type = "success") {
+        const notification = document.createElement("div");
+        notification.className = `notification ${type}`;
+        notification.textContent = message;
+
+        document.body.appendChild(notification);
+
+        // Animation d'entrée
+        setTimeout(() => {
+          notification.classList.add("show");
+        }, 10);
+
+        // Suppression automatique
+        setTimeout(() => {
+          notification.classList.remove("show");
+          setTimeout(() => {
+            notification.remove();
+          }, 300);
+        }, 3000);
+      }
       // Gestionnaire d'événement pour le formulaire
       document
         .getElementById("calcForm")
@@ -83,9 +103,11 @@
 
             if (response.ok) {
               const result = await response.json();
-              alert(`✅ Message envoyé : ${JSON.stringify(result)}`);
+              showNotification(`Opération envoyée avec succès`, "success");
             } else {
-              alert("❌ Une erreur est survenue lors de l'envoi des données.");
+              showNotification(
+                "❌ Une erreur est survenue lors de l'envoi des données."
+              );
             }
           } catch (error) {
             console.error("Erreur réseau :", error);
