@@ -44,6 +44,17 @@
 
         <button type="submit">Envoyer</button>
       </form>
+
+      <div class="results-panel">
+        <h2>Résultats récents</h2>
+        <button id="refreshResults">🔄 Rafraîchir</button>
+        <div
+          id="resultsContainer"
+          class="results-container">
+          <p class="no-results">Aucun résultat disponible</p>
+        </div>
+      </div>
+
       <button id="toggleTheme">Activer le mode sombre</button>
       <div class="footer">Farid, Mody, Verdiane & Georgi Corp 🌌</div>
     </div>
@@ -105,6 +116,77 @@
           currentTheme = "light";
         }
       });
+      // Récupérer et afficher les résultats
+      async function fetchResults() {
+        try {
+          const response = await fetch("http://localhost:3001/results");
+          if (response.ok) {
+            const results = await response.json();
+            displayResults(results);
+          } else {
+            console.error("Erreur lors de la récupération des résultats");
+          }
+        } catch (error) {
+          console.error("Erreur réseau:", error);
+        }
+      }
+
+      function displayResults(results) {
+        const container = document.getElementById("resultsContainer");
+
+        if (results.length === 0) {
+          container.innerHTML =
+            '<p class="no-results">Aucun résultat disponible</p>';
+          return;
+        }
+
+        let html = "";
+        results.forEach((result) => {
+          let operationSymbol = "";
+          switch (result.op) {
+            case "add":
+              operationSymbol = "+";
+              break;
+            case "sub":
+              operationSymbol = "-";
+              break;
+            case "mul":
+              operationSymbol = "×";
+              break;
+            case "div":
+              operationSymbol = "÷";
+              break;
+            default:
+              operationSymbol = result.op;
+          }
+
+          let resultValue = result.result;
+          if (resultValue === undefined && result.error) {
+            resultValue = `Erreur: ${result.error}`;
+          }
+
+          html += `
+        <div class="result-item">
+          <div class="result-operation">${result.n1} ${operationSymbol} ${result.n2}</div>
+          <div class="result-value">= ${resultValue}</div>
+          <div class="result-time">${result.timestamp}</div>
+        </div>
+      `;
+        });
+
+        container.innerHTML = html;
+      }
+
+      // Ajouter un écouteur pour le bouton de rafraîchissement
+      document
+        .getElementById("refreshResults")
+        .addEventListener("click", fetchResults);
+
+      // Charger les résultats au démarrage
+      fetchResults();
+
+      // Rafraîchir automatiquement toutes les 5 secondes
+      setInterval(fetchResults, 5000);
     </script>
   </body>
 </html>
