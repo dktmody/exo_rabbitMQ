@@ -32,6 +32,14 @@ async function startWorker() {
         const { n1, n2, op } = JSON.parse(content);
         console.log(`🔧 [worker_add] Reçu : ${n1} + ${n2} (op: ${op})`);
 
+        // Génère un délai aléatoire entre 5 et 15 secondes
+        const delay = getRandomDelay(5000, 15000);
+        console.log(
+          `⏳ [worker_add] Traitement en cours... (${delay / 1000} secondes)`
+        );
+        // Simule un traitement long
+        await sleep(delay);
+
         const resultMsg = {
           n1,
           n2,
@@ -54,6 +62,10 @@ async function startWorker() {
   } catch (error) {
     console.error("❌ Erreur worker_add :", error);
   }
+}
+// Génère un nombre aléatoire entre min et max (inclus)
+function getRandomDelay(min, max) {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
 startWorker();

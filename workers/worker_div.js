@@ -8,6 +8,9 @@ const RESULT_QUEUE = "results";
 function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
+function getRandomDelay(min, max) {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
 
 async function startWorker() {
   try {
@@ -36,6 +39,15 @@ async function startWorker() {
         const content = msg.content.toString();
         const { n1, n2, op } = JSON.parse(content);
         console.log(`🔧 [worker_div] Reçu : ${n1} / ${n2} (op: ${op})`);
+
+        // Génère un délai aléatoire entre 5 et 15 secondes
+        const delay = getRandomDelay(5000, 15000);
+        console.log(
+          `⏳ [worker_div] Traitement en cours... (${delay / 1000} secondes)`
+        );
+
+        // Simule un traitement long
+        await sleep(delay);
 
         // Vérifie la division par zéro
         let resultMsg;
