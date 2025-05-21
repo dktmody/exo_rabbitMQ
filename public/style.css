@@ -140,3 +140,146 @@ body.dark-mode button {
 body.dark-mode button:hover {
   background-color: #e0d7b5;
 }
+
+/* Partie resultats */
+
+.results-panel {
+  margin-top: 20px;
+  padding: 15px;
+  background-color: #f8f8f8;
+  border-radius: 8px;
+}
+
+.results-panel h2 {
+  margin-top: 0;
+  font-size: 24px;
+  color: #6b4226;
+}
+
+#refreshResults {
+  padding: 8px 12px;
+  width: auto;
+  font-size: 14px;
+  margin-bottom: 15px;
+}
+
+.results-container {
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.result-item {
+  background-color: #fff;
+  border-left: 4px solid #6b4226;
+  padding: 10px 15px;
+  margin-bottom: 10px;
+  border-radius: 4px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: all 0.2s ease;
+}
+
+.result-item:hover {
+  transform: translateX(5px);
+}
+
+.result-operation {
+  font-weight: bold;
+  font-size: 18px;
+}
+
+.result-value {
+  font-size: 16px;
+  margin: 5px 0;
+  color: #4caf50;
+}
+
+.result-time {
+  font-size: 12px;
+  color: #777;
+  text-align: right;
+}
+
+.no-results {
+  text-align: center;
+  color: #777;
+  font-style: italic;
+}
+
+/* Adaptations pour les thèmes */
+body.dark-mode .results-panel {
+  background-color: #2a2a2a;
+}
+
+body.dark-mode .results-panel h2 {
+  color: #f3eac2;
+}
+
+body.dark-mode .result-item {
+  background-color: #3c3c3c;
+  border-left-color: #f3eac2;
+}
+
+body.dark-mode .result-value {
+  color: #7ddb80;
+}
+
+body.naruto-mode .results-panel {
+  background-color: #333;
+  border: 2px solid #ff9500;
+}
+
+body.naruto-mode .results-panel h2 {
+  color: #ff9500;
+}
+
+body.naruto-mode .result-item {
+  background-color: #222;
+  border-left-color: #ff9500;
+}
+
+body.naruto-mode .result-value {
+  color: #ff9500;
+}
+
+/* notif */
+.notification {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  padding: 15px 20px;
+  background-color: #4caf50;
+  color: white;
+  border-radius: 4px;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
+  opacity: 0;
+  transform: translateY(-20px);
+  transition: all 0.3s ease;
+  z-index: 1000;
+}
+
+.notification.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.notification.error {
+  background-color: #f44336;
+}
+
+.notification.warning {
+  background-color: #ff9800;
+}
+
+body.dark-mode .notification {
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.4);
+}
+
+body.naruto-mode .notification {
+  background-color: #ff9500;
+  color: #000;
+  border: 2px solid #000;
+}
+
+body.naruto-mode .notification.error {
+  background-color: #ff5e3a;
+}

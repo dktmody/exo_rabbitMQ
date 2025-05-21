@@ -1,58 +1,86 @@
 // result_consumer.js
-import dotenv from "dotenv";
-import amqp from "amqplib";
-import { RESULTS_QUEUE } from "./constants/index.js";
+const amqp = require("amqplib");
+const express = require("express");
+const cors = require("cors");
 
-dotenv.config();
+// Stockage des résultats en mémoire (simple)
+const results = [];
+const MAX_RESULTS = 20; // Limiter le nombre de résultats stockés
 
-const RABBITMQ_URL = process.env.RABBITMQ_URL;
+// Créer un serveur Express simple
+const app = express();
+app.use(cors());
 
-if (!RABBITMQ_URL) {
-  console.error(
-    "❌ Veuillez définir la variable d'environnement RABBITMQ_URL avec l'URL de RabbitMQ."
+// Route pour récupérer les résultats
+app.get("/results", (req, res) => {
+  res.json(results);
+});
+// Route pour effacer tous les résultats
+app.delete("/results", (req, res) => {
+  results.length = 0;
+  res.json({ success: true, message: "Tous les résultats ont été effacés" });
+});
+
+// Route pour supprimer un résultat spécifique par index
+app.delete("/results/:index", (req, res) => {
+  const index = parseInt(req.params.index);
+
+  if (isNaN(index) || index < 0 || index >= results.length) {
+    return res
+      .status(404)
+      .json({ success: false, message: "Résultat non trouvé" });
+  }
+
+  results.splice(index, 1);
+  res.json({ success: true, message: "Résultat supprimé" });
+});
+
+// Démarrer le serveur sur un port différent pour éviter les conflits
+const PORT = 3001;
+app.listen(PORT, () => {
+  console.log(
+    `📊 Serveur de résultats démarré sur http://localhost:${PORT}/results`
   );
-  process.exit(1);
-}
+});
 
-async function startConsumer() {
+async function connectAndConsume() {
   try {
-    const connection = await amqp.connect(RABBITMQ_URL);
+    const connection = await amqp.connect("amqp://user:password@localhost");
     const channel = await connection.createChannel();
-    await channel.assertQueue(RESULTS_QUEUE, { durable: true });
-    const results = {};
+
+    const queue = "results";
+
+    await channel.assertQueue(queue, { durable: true });
 
     console.log(
       `📥 En attente des résultats dans la queue "${RESULTS_QUEUE}"...`
     );
 
-    channel.consume(RESULTS_QUEUE, (msg) => {
-      try {
-        const result = JSON.parse(msg.content.toString());
-        const id = msg.properties.correlationId;
-        results[id] = results[id] || [];
-        const source = result.source || "producer";
+    channel.consume(queue, (msg) => {
+      if (msg !== null) {
+        const content = msg.content.toString();
+        try {
+          const result = JSON.parse(content);
+          console.log(`✅ Résultat reçu : ${JSON.stringify(result)}`);
 
-        const src =
-          source === "cli" ? "CLI" : source === "web" ? "Web" : "Producer";
-        if (result.op === "all") {
-          results[id] = results[id] || [];
-          results[id].push(result);
-          if (results[id].length === 4) {
-            console.log(`✅ ${src} All results for ${id}:`, results[id]);
-            delete results[id];
+          // Ajouter un horodatage au résultat
+          result.timestamp = new Date().toLocaleTimeString();
+
+          // Ajouter au début de la liste (les plus récents d'abord)
+          results.unshift(result);
+
+          // Limiter la taille de la liste
+          if (results.length > MAX_RESULTS) {
+            results.pop();
           }
-        } else {
-          console.log(`✅ ${src} Result: ${JSON.stringify(result)}`);
+        } catch (err) {
+          console.error("❌ Erreur lors du parsing du message :", err);
         }
         channel.ack(msg);
-      } catch (err) {
-        console.error("❌ Erreur du consumer :", err);
-        channel.nack(msg, false, true);
       }
     });
   } catch (error) {
-    console.error("❌ Erreur de connexion à RabbitMQ :", error);
-    setTimeout(startConsumer, 5000);
+    console.error("Erreur de connexion à RabbitMQ :", error);
   }
 }
 
