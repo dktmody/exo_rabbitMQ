@@ -15,6 +15,25 @@ app.use(cors());
 app.get("/results", (req, res) => {
   res.json(results);
 });
+// Route pour effacer tous les résultats
+app.delete("/results", (req, res) => {
+  results.length = 0;
+  res.json({ success: true, message: "Tous les résultats ont été effacés" });
+});
+
+// Route pour supprimer un résultat spécifique par index
+app.delete("/results/:index", (req, res) => {
+  const index = parseInt(req.params.index);
+
+  if (isNaN(index) || index < 0 || index >= results.length) {
+    return res
+      .status(404)
+      .json({ success: false, message: "Résultat non trouvé" });
+  }
+
+  results.splice(index, 1);
+  res.json({ success: true, message: "Résultat supprimé" });
+});
 
 // Démarrer le serveur sur un port différent pour éviter les conflits
 const PORT = 3001;
@@ -33,7 +52,9 @@ async function connectAndConsume() {
 
     await channel.assertQueue(queue, { durable: true });
 
-    console.log(`📥 En attente des résultats dans la queue "${queue}"...`);
+    console.log(
+      `📥 En attente des résultats dans la queue "${RESULTS_QUEUE}"...`
+    );
 
     channel.consume(queue, (msg) => {
       if (msg !== null) {
@@ -63,4 +84,4 @@ async function connectAndConsume() {
   }
 }
 
-connectAndConsume();
+startConsumer();
