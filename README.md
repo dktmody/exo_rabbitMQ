@@ -151,4 +151,4 @@ Pour plus d'infos voir la partie Notes complémentaires
 Clic droit sur fichier index.html => open with live server dans VS code, ce qui ouvrira la page (http://127.0.0.1:5500/index.html)
 ---
 
-## 🧑‍🔬 Projet réalisé dans le cadre d’un TP pour la matière RabbitMQ
+## 🧑‍🔬 Projet réalisé dans le cadre d’un TP pour le module RabbitMQ
