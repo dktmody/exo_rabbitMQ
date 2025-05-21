@@ -1,3 +1,4 @@
+
 # 🧮 Calculateur Distribué avec RabbitMQ
 
 Un système de calcul distribué basé sur **RabbitMQ**, conçu pour l’**Institut de Physique Nucléaire NGI**.  
@@ -14,10 +15,16 @@ Un producteur envoie des opérations aléatoires, réparties entre des workers v
 
 ## 🧰 Technologies utilisées
 
-- 🟢 Node.js
+- 🟢 Node.js & Express
 - 🐇 RabbitMQ (via Docker)
 - 📦 [amqplib](https://www.npmjs.com/package/amqplib)
 - 🐳 Docker & Docker Compose
+
+---
+
+## 🧠 Schéma de l’architecture
+
+![Architecture RabbitMQ](schema.png)
 
 ---
 
@@ -28,10 +35,11 @@ exo_rabbitMQ/
 ├── docker-compose.yml        # Définition du service RabbitMQ
 ├── package.json              # Scripts et dépendances
 ├── README.md                 # Documentation du projet
+├── schema.png                # Schéma de l'architecture
 
 ├── producer.js               # Envoie des opérations aléatoires (add, sub, mul, div, all)
 ├── result_consumer.js        # Lit et affiche les résultats des calculs
-
+├── server.js                 # Serveur HTTP simple
 └── workers/
     ├── worker_add.js         # Worker gérant les additions
     ├── worker_sub.js         # Worker gérant les soustractions
@@ -45,7 +53,7 @@ exo_rabbitMQ/
 
 - 📦 Node.js ≥ 16
 - 🐳 Docker ≥ 20
-- 🐳 Docker Compose >= 1.29
+- 🐳 Docker Compose ≥ 1.29
 - 🐇 RabbitMQ (via Docker ou installation locale)
 
 ---
@@ -65,33 +73,81 @@ cd exo_rabbitMQ
 npm install
 ```
 
-### 3. Using Docker
-
-1. Create a `.env` file with RabbitMQ credentials:
-   ```env
-   RABBITMQ_USER=admin
-   RABBITMQ_PASS=securepassword123
-   ```
-
-### 4. Lancer RabbitMQ avec Docker
+### 3. Lancer RabbitMQ avec Docker
 
 ```bash
 docker-compose up -d
 ```
 
-### 5. Vérifier le lancement de rabbitMQ
+### 4. Vérifier le lancement de RabbitMQ
 
 - AMQP: `amqp://localhost:5672`
-- Interface de gestion de RabbitMQ (optionnel):  
-  🔗 [http://localhost:15672](http://localhost:15672) (login with credentials from `.env`)
+- Interface de gestion (optionnel) :  
+  🔗 [http://localhost:15672](http://localhost:15672) (login ci-dessous)
 
 **Identifiants de connexion :**
 
 - **Login** : `user`
 - **Mot de passe** : `password`
 
-### 5. Fonctionnement via le terminal :
+---
 
-- Si on lance la commande node producer.js (sans arguments) alors le mode aléatoire est lancé et des opérations et nombres (n1 et n2) sont choisis aléatoirement.
-- Si on souhaite communiquer les arguments, on utilise la commande "node producer.js n1 n2 operation" soit par exemple "5 2 add" (pour 5+2) ou encore "9 5 mul" (pour 9\*5).
-- l'opération "all" peut également désormais être choisie consistant à lancer toutes les opérations pour les nombres n1 et n2 choisis en tapant la commande "node producer.js n1 n2 all".
+## 🖥️ Lancement des composants
+
+### 5. Lancer les workers puis le serveur backend et enfin le consommateur
+
+Dans un terminal :
+
+```bash
+node workers/index_worker.js
+```
+Puis :
+```bash
+node result_consumer.js
+```
+Et enfin:
+```bash
+node server.js
+```
+
+### 6. Producteur d’opérations
+
+- Mode aléatoire (nombres et opération aléatoires) :
+
+```bash
+node producer.js
+```
+
+- Mode manuel (ex: addition 5 + 2) :
+
+```bash
+node producer.js 5 2 add
+```
+
+- Toutes les opérations (add, sub, mul, div) :
+
+```bash
+node producer.js 5 2 all
+```
+- Les opérations (add, sub, mul, div, all) peuvent également s'effectuer sur le navigateur  :
+
+Pour plus d'infos voir la partie Notes complémentaires
+
+---
+
+## ✅ Résultat attendu
+
+- Les workers reçoivent les opérations correspondant à leur type (add, sub, etc.).
+- Chaque worker effectue le calcul et envoie le résultat à une file dédiée.
+- Le consommateur lit les résultats et les affiche dans le terminal.
+
+---
+
+## 📬 Notes complémentaires
+
+- Vous pouvez observer la file et les échanges dans l’interface RabbitMQ (http://localhost:15672).
+
+- Pour le test sur le navigateur, ouvrir fichier index.html en local avec live server par exemple (http://127.0.0.1:5500/index.html)
+---
+
+## 🧑‍🔬 Projet réalisé dans le cadre d’un TP pour la matière RabbitMQ
