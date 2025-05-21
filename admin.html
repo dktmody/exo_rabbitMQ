@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0" />
+    <title>Administration DreamTeam Calculator</title>
+    <link
+      rel="stylesheet"
+      href="admin-style.css" />
+  </head>
+  <body>
+    <div class="admin-container">
+      <header>
+        <h1>Administration DreamTeam Calculator</h1>
+        <div class="theme-toggle">
+          <button id="toggleTheme">Mode sombre</button>
+        </div>
+      </header>
+
+      <div class="dashboard">
+        <div class="stats-panel">
+          <h2>Statistiques</h2>
+          <div class="stats-grid">
+            <div class="stat-card">
+              <h3>Résultats récents</h3>
+              <div
+                class="stat-value"
+                id="results-count">
+                0
+              </div>
+            </div>
+            <div class="stat-card">
+              <h3>Workers connectés</h3>
+              <div
+                class="stat-value"
+                id="workers-count">
+                0
+              </div>
+            </div>
+            <div class="stat-card">
+              <h3>Opérations traitées</h3>
+              <div
+                class="stat-value"
+                id="operations-count">
+                0
+              </div>
+            </div>
+            <div class="stat-card">
+              <h3>Temps moyen</h3>
+              <div
+                class="stat-value"
+                id="avg-time">
+                0s
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="workers-panel">
+          <h2>État des workers</h2>
+          <div class="workers-grid">
+            <div
+              class="worker-card"
+              id="worker-add">
+              <h3>Addition</h3>
+              <div class="status">En attente de connexion...</div>
+            </div>
+            <div
+              class="worker-card"
+              id="worker-sub">
+              <h3>Soustraction</h3>
+              <div class="status">En attente de connexion...</div>
+            </div>
+            <div
+              class="worker-card"
+              id="worker-mul">
+              <h3>Multiplication</h3>
+              <div class="status">En attente de connexion...</div>
+            </div>
+            <div
+              class="worker-card"
+              id="worker-div">
+              <h3>Division</h3>
+              <div class="status">En attente de connexion...</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="operations-panel">
+          <h2>Opérations récentes</h2>
+          <div class="action-buttons">
+            <button id="refresh-results">🔄 Rafraîchir</button>
+            <button id="clear-results">🗑️ Effacer tous les résultats</button>
+          </div>
+          <div class="table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th>Opération</th>
+                  <th>Résultat</th>
+                  <th>Heure</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="operations-list">
+                <!-- Données dynamiques -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="manage-panel">
+          <h2>Soumettre une opération</h2>
+          <form id="admin-calc-form">
+            <div class="form-row">
+              <div class="form-group">
+                <label for="admin-n1">Nombre 1:</label>
+                <input
+                  type="number"
+                  id="admin-n1"
+                  required />
+              </div>
+              <div class="form-group">
+                <label for="admin-n2">Nombre 2:</label>
+                <input
+                  type="number"
+                  id="admin-n2"
+                  required />
+              </div>
+              <div class="form-group">
+                <label for="admin-op">Opération:</label>
+                <select
+                  id="admin-op"
+                  required>
+                  <option value="add">Addition (+)</option>
+                  <option value="sub">Soustraction (-)</option>
+                  <option value="mul">Multiplication (*)</option>
+                  <option value="div">Division (/)</option>
+                  <option value="all">Toutes</option>
+                </select>
+              </div>
+            </div>
+            <button type="submit">Envoyer</button>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // Gestion du thème
+      const toggleTheme = document.getElementById("toggleTheme");
+      let isDarkMode = false;
+
+      toggleTheme.addEventListener("click", () => {
+        document.body.classList.toggle("dark-mode");
+        isDarkMode = !isDarkMode;
+        toggleTheme.textContent = isDarkMode ? "Mode clair" : "Mode sombre";
+      });
+
+      // Fonctions d'API
+      async function fetchRabbitMQStatus() {
+        try {
+          const response = await fetch(
+            "http://localhost:3002/api/rabbitmq-status"
+          );
+          if (response.ok) {
+            const data = await response.json();
+            updateWorkerStatus(data.workers);
+            document.getElementById("workers-count").textContent =
+              data.workersCount;
+            document.getElementById("operations-count").textContent =
+              data.operationsCount;
+          }
+        } catch (error) {
+          console.error(
+            "Erreur lors de la récupération du statut RabbitMQ:",
+            error
+          );
+        }
+      }
+
+      async function fetchResults() {
+        try {
+          const response = await fetch("http://localhost:3001/results");
+          if (response.ok) {
+            const results = await response.json();
+            updateResultsTable(results);
+            document.getElementById("results-count").textContent =
+              results.length;
+
+            // Calculer le temps moyen des opérations
+            if (results.length > 0) {
+              let totalTime = 0;
+              let count = 0;
+              results.forEach((result) => {
+                if (result.processingTime) {
+                  totalTime += result.processingTime;
+                  count++;
+                }
+              });
+              const avgTime =
+                count > 0 ? (totalTime / count).toFixed(2) : "N/A";
+              document.getElementById("avg-time").textContent = avgTime + "s";
+            }
+          }
+        } catch (error) {
+          console.error("Erreur lors de la récupération des résultats:", error);
+        }
+      }
+
+      async function clearAllResults() {
+        try {
+          const response = await fetch("http://localhost:3001/results", {
+            method: "DELETE",
+          });
+          if (response.ok) {
+            fetchResults();
+          }
+        } catch (error) {
+          console.error("Erreur lors de la suppression des résultats:", error);
+        }
+      }
+
+      async function deleteResult(id) {
+        try {
+          const response = await fetch(`http://localhost:3001/results/${id}`, {
+            method: "DELETE",
+          });
+          if (response.ok) {
+            fetchResults();
+          }
+        } catch (error) {
+          console.error("Erreur lors de la suppression du résultat:", error);
+        }
+      }
+
+      async function submitOperation(data) {
+        try {
+          const response = await fetch("http://localhost:3000/api/produce", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(data),
+          });
+
+          if (response.ok) {
+            showNotification("Opération soumise avec succès", "success");
+            setTimeout(fetchResults, 1000);
+          } else {
+            showNotification(
+              "Erreur lors de la soumission de l'opération",
+              "error"
+            );
+          }
+        } catch (error) {
+          console.error("Erreur lors de la soumission de l'opération:", error);
+          showNotification("Erreur de connexion au serveur", "error");
+        }
+      }
+
+      // Fonctions d'interface
+      function updateWorkerStatus(workers) {
+        const workerTypes = ["add", "sub", "mul", "div"];
+
+        workerTypes.forEach((type) => {
+          const workerElement = document.getElementById(`worker-${type}`);
+          const statusElement = workerElement.querySelector(".status");
+
+          if (workers[type]) {
+            const worker = workers[type];
+            statusElement.textContent = worker.active
+              ? "Connecté"
+              : "Déconnecté";
+
+            workerElement.className = "worker-card";
+            if (worker.active) {
+              if (worker.processing) {
+                workerElement.classList.add("busy");
+                statusElement.textContent = "Actif - Traitement en cours";
+              } else {
+                workerElement.classList.add("active");
+                statusElement.textContent = "Connecté - En attente";
+              }
+            } else {
+              workerElement.classList.add("inactive");
+            }
+          } else {
+            statusElement.textContent = "Non détecté";
+            workerElement.className = "worker-card inactive";
+          }
+        });
+      }
+
+      function updateResultsTable(results) {
+        const tableBody = document.getElementById("operations-list");
+        tableBody.innerHTML = "";
+
+        if (results.length === 0) {
+          const row = document.createElement("tr");
+          const cell = document.createElement("td");
+          cell.colSpan = 4;
+          cell.textContent = "Aucun résultat disponible";
+          cell.style.textAlign = "center";
+          cell.style.fontStyle = "italic";
+          row.appendChild(cell);
+          tableBody.appendChild(row);
+          return;
+        }
+
+        results.forEach((result, index) => {
+          const row = document.createElement("tr");
+
+          // Cellule Opération
+          const opCell = document.createElement("td");
+          const opSymbol = getOperationSymbol(result.op);
+          opCell.textContent = `${result.n1} ${opSymbol} ${result.n2}`;
+
+          // Cellule Résultat
+          const resultCell = document.createElement("td");
+          if (result.error) {
+            resultCell.textContent = result.error;
+            resultCell.classList.add("error-text");
+          } else {
+            resultCell.textContent = result.result;
+          }
+
+          // Cellule Heure
+          const timeCell = document.createElement("td");
+          timeCell.textContent = result.timestamp || "N/A";
+
+          // Cellule Actions
+          const actionsCell = document.createElement("td");
+          const deleteBtn = document.createElement("button");
+          deleteBtn.textContent = "Supprimer";
+          deleteBtn.classList.add("delete-btn");
+          deleteBtn.addEventListener("click", () => deleteResult(index));
+          actionsCell.appendChild(deleteBtn);
+
+          // Ajouter les cellules à la ligne
+          row.appendChild(opCell);
+          row.appendChild(resultCell);
+          row.appendChild(timeCell);
+          row.appendChild(actionsCell);
+
+          // Ajouter la ligne au tableau
+          tableBody.appendChild(row);
+        });
+      }
+
+      function showNotification(message, type = "success") {
+        const notification = document.createElement("div");
+        notification.className = `notification ${type}`;
+        notification.textContent = message;
+
+        document.body.appendChild(notification);
+
+        setTimeout(() => notification.classList.add("show"), 10);
+
+        setTimeout(() => {
+          notification.classList.remove("show");
+          setTimeout(() => notification.remove(), 300);
+        }, 3000);
+      }
+
+      function getOperationSymbol(op) {
+        switch (op) {
+          case "add":
+            return "+";
+          case "sub":
+            return "-";
+          case "mul":
+            return "×";
+          case "div":
+            return "÷";
+          default:
+            return op;
+        }
+      }
+
+      // Gestion des événements
+      document
+        .getElementById("refresh-results")
+        .addEventListener("click", () => {
+          fetchResults();
+          fetchRabbitMQStatus();
+        });
+
+      document.getElementById("clear-results").addEventListener("click", () => {
+        if (confirm("Êtes-vous sûr de vouloir effacer tous les résultats ?")) {
+          clearAllResults();
+        }
+      });
+
+      document
+        .getElementById("admin-calc-form")
+        .addEventListener("submit", (e) => {
+          e.preventDefault();
+
+          const n1 = document.getElementById("admin-n1").value;
+          const n2 = document.getElementById("admin-n2").value;
+          const op = document.getElementById("admin-op").value;
+
+          submitOperation({ n1, n2, op });
+        });
+
+      // Initialisation
+      fetchResults();
+      fetchRabbitMQStatus();
+
+      // Rafraîchir périodiquement
+      setInterval(fetchResults, 5000);
+      setInterval(fetchRabbitMQStatus, 3000);
+    </script>
+  </body>
+</html>
